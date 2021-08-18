@@ -86,21 +86,28 @@ const saveMessage = async (body) => {
 const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
-    recipientId: body.recipientId,
+    recipient: body.recipient,
     sender: data.sender,
+    isNewConvo: body.isNewConvo,
   });
 };
 
 // message format to send: {recipientId, text, conversationId}
 // conversationId will be set to null if its a brand new conversation
-export const postMessage = (body) => (dispatch) => {
+export const postMessage = (body) => async (dispatch) => {
   try {
-    const data = saveMessage(body);
-
-    if (!body.conversationId) {
-      dispatch(addConversation(body.recipientId, data.message));
+    const data = await saveMessage(body);
+    if (body.isNewConvo) {
+      dispatch(addConversation(body.sender, body.recipient, data.message));
     } else {
-      dispatch(setNewMessage(data.message));
+      dispatch(
+        setNewMessage(
+          data.message,
+          body.recipient,
+          data.sender,
+          body.isNewConvo
+        )
+      );
     }
 
     sendMessage(data, body);
