@@ -6,9 +6,9 @@ import moment from "moment";
 const Messages = (props) => {
   const { messages, otherUser, userId } = props;
 
-  const sortedMessagesByTimeAsc = messages.sort(
-    (a, b) => moment(a.createdAt) - moment(b.createdAt)
-  );
+  const sortedMessagesByTimeAsc = messages.sort((a, b) => {
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
 
   return (
     <Box>
