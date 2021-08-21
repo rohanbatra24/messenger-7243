@@ -67,6 +67,15 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
 
+      //sort messages by oldest first
+      const sortedMessagesByTimeAsc = convoJSON.messages.sort((a, b) => {
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      });
+
+      convoJSON.messages = sortedMessagesByTimeAsc;
+
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[0].text;
       conversations[i] = convoJSON;
