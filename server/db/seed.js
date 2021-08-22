@@ -2,6 +2,7 @@ const db = require("./db");
 const { User } = require("./models");
 const Conversation = require("./models/conversation");
 const Message = require("./models/message");
+const Participant = require("./models/participant");
 
 async function seed() {
   await db.sync({ force: true });
@@ -23,23 +24,42 @@ async function seed() {
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914466/messenger/775db5e79c5294846949f1f55059b53317f51e30_s3back.png",
   });
 
-  const santaigoConvo = await Conversation.create({
-    user1Id: thomas.id,
-    user2Id: santiago.id,
+  const user1 = await User.create({
+    username: "user1",
+    email: "user1o@email.com",
+    password: "aaaaaa",
+    photoUrl: "",
+  });
+
+  const partyPlanning = await Conversation.create({});
+
+  const partyPlanningConvoParticipant1 = await Participant.create({
+    conversationId: partyPlanning.id,
+    userId: user1.id,
+  });
+
+  const partyPlanningConvoParticipant2 = await Participant.create({
+    conversationId: partyPlanning.id,
+    userId: thomas.id,
+  });
+
+  const partyPlanningConvoParticipant3 = await Participant.create({
+    conversationId: partyPlanning.id,
+    userId: santiago.id,
   });
 
   await Message.create({
-    conversationId: santaigoConvo.id,
+    conversationId: partyPlanning.id,
     senderId: santiago.id,
-    text: "Where are you from?",
+    text: "convo with user1",
   });
   await Message.create({
-    conversationId: santaigoConvo.id,
+    conversationId: partyPlanning.id,
     senderId: thomas.id,
     text: "I'm from New York",
   });
   await Message.create({
-    conversationId: santaigoConvo.id,
+    conversationId: partyPlanning.id,
     senderId: santiago.id,
     text: "Share photo of your city, please",
   });
