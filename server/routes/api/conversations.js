@@ -2,6 +2,7 @@ const router = require("express").Router();
 const { User, Conversation, Message } = require("../../db/models");
 const { Op } = require("sequelize");
 const onlineUsers = require("../../onlineUsers");
+const Participant = require("../../db/models/participant");
 
 // get all conversations for a user, include latest message text for preview, and all messages
 // include other user model so we have info on username/profile pic (don't include current user info)
@@ -12,38 +13,11 @@ router.get("/", async (req, res, next) => {
     }
     const userId = req.user.id;
     const conversations = await Conversation.findAll({
-      where: {
-        [Op.or]: {
-          user1Id: userId,
-          user2Id: userId,
-        },
-      },
       attributes: ["id"],
       order: [[Message, "createdAt", "DESC"]],
       include: [
         { model: Message, order: ["createdAt", "DESC"] },
-        {
-          model: User,
-          as: "user1",
-          where: {
-            id: {
-              [Op.not]: userId,
-            },
-          },
-          attributes: ["id", "username", "photoUrl"],
-          required: false,
-        },
-        {
-          model: User,
-          as: "user2",
-          where: {
-            id: {
-              [Op.not]: userId,
-            },
-          },
-          attributes: ["id", "username", "photoUrl"],
-          required: false,
-        },
+        { model: User, where: { id: 2 } },
       ],
     });
 
@@ -51,21 +25,26 @@ router.get("/", async (req, res, next) => {
       const convo = conversations[i];
       const convoJSON = convo.toJSON();
 
-      // set a property "otherUser" so that frontend will have easier access
-      if (convoJSON.user1) {
-        convoJSON.otherUser = convoJSON.user1;
-        delete convoJSON.user1;
-      } else if (convoJSON.user2) {
-        convoJSON.otherUser = convoJSON.user2;
-        delete convoJSON.user2;
-      }
+      const convoParticipants = await Participant.findAll({
+        attributes: ["userId"],
+        where: { conversationId: convo.id },
+      });
 
-      // set property for online status of the other user
-      if (onlineUsers.includes(convoJSON.otherUser.id)) {
-        convoJSON.otherUser.online = true;
-      } else {
-        convoJSON.otherUser.online = false;
-      }
+      console.log(`convoParticipants`, convoParticipants);
+
+      console.log(`onlineUsers`, onlineUsers);
+
+      // set a property "otherUsers" so that frontend will have easier access
+      convoJSON.otherUsers = convoParticipants;
+
+      // set property for online status of all other users
+      convoJSON.otherUsers = convoJSON.otherUsers.map((user) => {
+        if (onlineUsers.includes(user.userId)) {
+          return { userId: user.userId, online: true };
+        } else {
+          return { userId: user.userId, online: false };
+        }
+      });
 
       //sort messages by oldest first
       const sortedMessagesByTimeAsc = convoJSON.messages.sort((a, b) => {
