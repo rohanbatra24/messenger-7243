@@ -30,10 +30,6 @@ router.get("/", async (req, res, next) => {
         where: { conversationId: convo.id },
       });
 
-      console.log(`convoParticipants`, convoParticipants);
-
-      console.log(`onlineUsers`, onlineUsers);
-
       // set a property "otherUsers" so that frontend will have easier access
       convoJSON.otherUsers = convoParticipants;
 
