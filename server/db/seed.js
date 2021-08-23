@@ -31,7 +31,7 @@ async function seed() {
     photoUrl: "",
   });
 
-  const partyPlanning = await Conversation.create({});
+  const partyPlanning = await Conversation.create({ name: "Party Planning" });
 
   const partyPlanningConvoParticipant1 = await Participant.create({
     conversationId: partyPlanning.id,
@@ -72,8 +72,7 @@ async function seed() {
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914468/messenger/8bc2e13b8ab74765fd57f0880f318eed1c3fb001_fownwt.png",
   });
   const chiumboConvo = await Conversation.create({
-    user1Id: chiumbo.id,
-    user2Id: thomas.id,
+    name: "chiumboConvo",
   });
   await Message.create({
     conversationId: chiumboConvo.id,
@@ -89,8 +88,7 @@ async function seed() {
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914466/messenger/6c4faa7d65bc24221c3d369a8889928158daede4_vk5tyg.png",
   });
   const hualingConvo = await Conversation.create({
-    user2Id: hualing.id,
-    user1Id: thomas.id,
+    name: "hualingConvo",
   });
 
   for (let i = 0; i < 11; i++) {

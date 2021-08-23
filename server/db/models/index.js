@@ -19,9 +19,9 @@ Message.belongsTo(User, {
   foreignKey: "senderId",
 });
 
-User.hasMany(Conversation);
-
-Message.belongsTo(Conversation);
+Message.belongsTo(Conversation, {
+  foreignKey: "senderId",
+});
 
 Conversation.hasMany(Message);
 
