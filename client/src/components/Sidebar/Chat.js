@@ -1,14 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
 import { connect } from "react-redux";
-import socket from "../../socket";
-import {
-  updateConvoLastOpened,
-  updateReadByMe,
-} from "../../store/conversations";
+
+import { updateMessageReadStatus } from "../../store/utils/thunkCreators";
+import { updateReadByMe } from "../../store/conversations";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,30 +36,24 @@ const Chat = (props) => {
   const { conversation, activeConversation } = props;
   const { otherUser } = conversation;
 
+  const lastMessageSeen = conversation.id
+    ? conversation.messages[conversation.messages.length - 1]
+    : null;
+
   const handleClick = async (conversation) => {
     await props.setActiveChat(conversation.otherUser.username);
 
     if (conversation.id) {
-      // Emit message to notify that all messages in this conversation are seen
-      socket.emit("messages-seen", {
-        conversationId: conversation.id,
-      });
-
-      // Update store with the time this convo was last opened
-      props.updateConvoLastOpened(conversation);
-      props.updateReadByMe(conversation.id);
+      props.updateMessageReadStatus(lastMessageSeen, conversation.id);
     }
   };
 
-  const lastMessage = conversation.id
-    ? conversation.messages[conversation.messages.length - 1].id
-    : null;
-
-  useEffect(() => {
-    if (activeConversation === conversation.otherUser.username) {
-      props.updateReadByMe(conversation.id);
-    }
-  }, [activeConversation, lastMessage]);
+  if (
+    activeConversation === conversation.otherUser.username &&
+    conversation.unreadByMe !== 0
+  ) {
+    props.updateReadByMe(conversation.id);
+  }
 
   return (
     <Box onClick={() => handleClick(conversation)} className={classes.root}>
@@ -73,7 +65,7 @@ const Chat = (props) => {
       />
       <ChatContent conversation={conversation} />
       {conversation.unreadByMe ? (
-        <span style={unreadMessagesStyles}>{conversation.unreadByMe}</span>
+        <Box style={unreadMessagesStyles}>{conversation.unreadByMe}</Box>
       ) : (
         ""
       )}
@@ -86,8 +78,9 @@ const mapDispatchToProps = (dispatch) => {
     setActiveChat: (id) => {
       dispatch(setActiveChat(id));
     },
-    updateConvoLastOpened: (conversation) => {
-      dispatch(updateConvoLastOpened(conversation));
+
+    updateMessageReadStatus: (lastMessageSeen, conversationId) => {
+      dispatch(updateMessageReadStatus(lastMessageSeen, conversationId));
     },
     updateReadByMe: (conversationId) => {
       dispatch(updateReadByMe(conversationId));
