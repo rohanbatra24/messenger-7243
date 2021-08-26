@@ -64,10 +64,8 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      {conversation.unreadByMe ? (
+      {conversation.unreadByMe > 0 && (
         <Box style={unreadMessagesStyles}>{conversation.unreadByMe}</Box>
-      ) : (
-        ""
       )}
     </Box>
   );
