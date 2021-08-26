@@ -48,9 +48,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("messages-seen", (data) => {
-    socket.broadcast.emit("messages-seen", {
-      conversationId: data.conversationId,
-    });
+    data.lastMessageSeen.read = true;
+    socket.broadcast.emit("messages-seen", data);
   });
 
   socket.on("logout", (id) => {
