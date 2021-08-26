@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Box } from "@material-ui/core";
 import { Input, Header, Messages } from "./index";
 import { connect } from "react-redux";
-import socket from "../../socket";
+import { updateMessageReadStatus } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -26,18 +26,15 @@ const ActiveChat = (props) => {
   const { user } = props;
   const conversation = props.conversation || {};
 
-  const lastMessage = conversation.id
-    ? conversation.messages[conversation.messages.length - 1].id
+  const lastMessageSeenByMe = conversation.id
+    ? conversation.messages[conversation.messages.length - 1]
     : null;
 
-  useEffect(() => {
-    if (conversation.id) {
-      // Emit message to notify that all messages in this conversation are seen
-      socket.emit("messages-seen", {
-        conversationId: conversation.id,
-      });
-    }
-  }, [conversation.id, lastMessage]);
+  if (conversation.id && lastMessageSeenByMe.senderId !== user.id) {
+    // Update store with the time this convo was last opened
+
+    props.updateMessageReadStatus(lastMessageSeenByMe, conversation.id);
+  }
 
   return (
     <Box className={classes.root}>
@@ -68,6 +65,14 @@ const ActiveChat = (props) => {
   );
 };
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateMessageReadStatus: (lastMessageSeen, conversationId) => {
+      dispatch(updateMessageReadStatus(lastMessageSeen, conversationId));
+    },
+  };
+};
+
 const mapStateToProps = (state) => {
   return {
     user: state.user,
@@ -80,4 +85,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, null)(ActiveChat);
+export default connect(mapStateToProps, mapDispatchToProps)(ActiveChat);

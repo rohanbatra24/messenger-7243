@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import moment from "moment";
 import { Box } from "@material-ui/core";
 
@@ -18,7 +18,7 @@ const Messages = (props) => {
         const time = moment(message.createdAt).format("h:mm");
 
         return message.senderId === userId ? (
-          <Fragment>
+          <>
             <SenderBubble key={message.id} text={message.text} time={time} />
             {lastMessageIdSeenByOtherUser === message.id && (
               <BadgeAvatar
@@ -29,25 +29,16 @@ const Messages = (props) => {
                 alignRight={true}
               />
             )}
-          </Fragment>
+          </>
         ) : (
-          <Fragment>
+          <>
             <OtherUserBubble
               key={message.id}
               text={message.text}
               time={time}
               otherUser={otherUser}
             />
-            {lastMessageIdSeenByOtherUser === message.id && (
-              <BadgeAvatar
-                photoUrl={otherUser.photoUrl}
-                username={otherUser.username}
-                online={otherUser.online}
-                sidebar={true}
-                alignRight={true}
-              />
-            )}
-          </Fragment>
+          </>
         );
       })}
     </Box>
