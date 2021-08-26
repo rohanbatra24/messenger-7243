@@ -4,7 +4,6 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
-  updateConvoLastOpenedInStore,
   updateSeenByOtherUserInStore,
   updateReadByMeInStore,
 } from "./utils/reducerFunctions";
@@ -38,15 +37,6 @@ export const setNewMessage = (message, sender) => {
   };
 };
 
-export const updateConvoLastOpened = (conversation) => {
-  return {
-    type: UPDATE_CONVO_LAST_OPENED,
-    payload: {
-      conversation,
-    },
-  };
-};
-
 export const updateReadByMe = (conversationId) => {
   return {
     type: UPDATE_READ_BY_ME,
@@ -56,11 +46,11 @@ export const updateReadByMe = (conversationId) => {
   };
 };
 
-export const updateSeenByOtherUser = (convoId) => {
+export const updateSeenByOtherUser = (lastMessageSeen) => {
   return {
     type: UPDATE_SEEN_BY_OTHER_USER,
     payload: {
-      convoId,
+      lastMessageSeen,
     },
   };
 };
@@ -111,8 +101,6 @@ const reducer = (state = [], action) => {
     case ADD_ONLINE_USER: {
       return addOnlineUserToStore(state, action.id);
     }
-    case UPDATE_CONVO_LAST_OPENED:
-      return updateConvoLastOpenedInStore(state, action.payload);
     case UPDATE_SEEN_BY_OTHER_USER:
       return updateSeenByOtherUserInStore(state, action.payload);
     case UPDATE_READ_BY_ME: {
