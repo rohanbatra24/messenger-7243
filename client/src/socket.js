@@ -22,7 +22,7 @@ socket.on("connect", () => {
   });
 
   socket.on("messages-seen", (data) => {
-    store.dispatch(updateSeenByOtherUser(data.conversationId));
+    store.dispatch(updateSeenByOtherUser(data.lastMessageSeen));
   });
 });
 
