@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { Conversation, Message } = require("../../db/models");
 const onlineUsers = require("../../onlineUsers");
+const { Op } = require("sequelize");
 
 // expects {recipientId, text, conversationId } in body (conversationId will be null if no conversation exists yet)
 router.post("/", async (req, res, next) => {
@@ -51,6 +52,24 @@ router.post("/", async (req, res, next) => {
 
 // expects {messageId,readStatus } in body
 router.put("/readStatus", async (req, res, next) => {
+  if (!req.user) {
+    return res.sendStatus(401);
+  }
+
+  // check if the user is a part of this conversation
+  let conversation = await Conversation.findOne({
+    where: {
+      id: req.body.conversationId,
+    },
+  });
+
+  if (
+    conversation.user1Id !== req.user.id &&
+    conversation.user2Id !== req.user.id
+  ) {
+    return res.sendStatus(401);
+  }
+
   try {
     const { conversationId } = req.body;
 
@@ -60,6 +79,7 @@ router.put("/readStatus", async (req, res, next) => {
       {
         where: {
           conversationId: conversationId,
+          [Op.not]: { senderId: req.user.id },
         },
       }
     );
