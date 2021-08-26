@@ -1,10 +1,12 @@
 import React from "react";
-import { Box } from "@material-ui/core";
-import { SenderBubble, OtherUserBubble } from "../ActiveChat";
 import moment from "moment";
+import { Box } from "@material-ui/core";
+
+import { SenderBubble, OtherUserBubble } from "../ActiveChat";
+import { BadgeAvatar } from "../Sidebar";
 
 const Messages = (props) => {
-  const { messages, otherUser, userId } = props;
+  const { messages, otherUser, userId, lastMessageIdSeenByOtherUser } = props;
 
   return (
     <Box>
@@ -12,14 +14,27 @@ const Messages = (props) => {
         const time = moment(message.createdAt).format("h:mm");
 
         return message.senderId === userId ? (
-          <SenderBubble key={message.id} text={message.text} time={time} />
+          <>
+            <SenderBubble key={message.id} text={message.text} time={time} />
+            {lastMessageIdSeenByOtherUser === message.id && (
+              <BadgeAvatar
+                photoUrl={otherUser.photoUrl}
+                username={otherUser.username}
+                online={otherUser.online}
+                sidebar={true}
+                alignRight={true}
+              />
+            )}
+          </>
         ) : (
-          <OtherUserBubble
-            key={message.id}
-            text={message.text}
-            time={time}
-            otherUser={otherUser}
-          />
+          <>
+            <OtherUserBubble
+              key={message.id}
+              text={message.text}
+              time={time}
+              otherUser={otherUser}
+            />
+          </>
         );
       })}
     </Box>

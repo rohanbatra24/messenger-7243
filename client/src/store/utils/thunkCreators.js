@@ -83,6 +83,13 @@ const saveMessage = async (body) => {
   return data;
 };
 
+const updateMessage = async (conversationId) => {
+  const { data } = await axios.put("/api/messages/readStatus", {
+    conversationId,
+  });
+  return data;
+};
+
 const sendMessage = (data, body) => {
   socket.emit("new-message", {
     message: data.message,
@@ -105,6 +112,23 @@ export const postMessage = (body) => async (dispatch) => {
     sendMessage(data, body);
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const updateMessageReadStatus = (
+  lastMessageSeen,
+  conversationId
+) => async (dispatch) => {
+  if (conversationId) {
+    try {
+      // Emit message to notify that all messages in this conversation are seen
+      socket.emit("messages-seen", {
+        lastMessageSeen,
+      });
+      await updateMessage(conversationId);
+    } catch (error) {
+      console.error(error);
+    }
   }
 };
 
