@@ -123,7 +123,7 @@ export const updateMessageReadStatus = (
     try {
       // Emit message to notify that all messages in this conversation are seen
       socket.emit("messages-seen", {
-        lastMessageSeen: lastMessageSeen,
+        lastMessageSeen,
       });
       await updateMessage(conversationId);
     } catch (error) {
