@@ -67,6 +67,21 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
 
+
+      //set property for unread msg count
+      convoJSON.unreadByMe = convoJSON.messages.reduce((a, msg) => {
+        return msg.read === false && msg.senderId === convoJSON.otherUser.id
+          ? a + 1
+          : a;
+      }, 0);
+
+      const readMessages = convoJSON.messages.filter(
+        (msg) => msg.read && msg.senderId === convoJSON.otherUser.id
+      );
+
+      convoJSON.lastMessageIdSeenbyOtherUser =
+        readMessages.length > 0 ? readMessages[0].id : null;
+
       //sort messages by oldest first
       const sortedMessagesByTimeAsc = convoJSON.messages.sort((a, b) => {
         return (
@@ -75,6 +90,7 @@ router.get("/", async (req, res, next) => {
       });
 
       convoJSON.messages = sortedMessagesByTimeAsc;
+
 
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[0].text;

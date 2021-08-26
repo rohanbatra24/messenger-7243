@@ -4,6 +4,8 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  updateSeenByOtherUserInStore,
+  updateReadByMeInStore,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -15,6 +17,9 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const UPDATE_CONVO_LAST_OPENED = "UPDATE_CONVO_LAST_OPENED";
+const UPDATE_SEEN_BY_OTHER_USER = "UPDATE_SEEN_BY_OTHER_USER";
+const UPDATE_READ_BY_ME = "UPDATE_READ_BY_ME";
 
 // ACTION CREATORS
 
@@ -29,6 +34,24 @@ export const setNewMessage = (message, sender) => {
   return {
     type: SET_MESSAGE,
     payload: { message, sender: sender || null },
+  };
+};
+
+export const updateReadByMe = (conversationId) => {
+  return {
+    type: UPDATE_READ_BY_ME,
+    payload: {
+      conversationId,
+    },
+  };
+};
+
+export const updateSeenByOtherUser = (lastMessageSeen) => {
+  return {
+    type: UPDATE_SEEN_BY_OTHER_USER,
+    payload: {
+      lastMessageSeen,
+    },
   };
 };
 
@@ -77,6 +100,11 @@ const reducer = (state = [], action) => {
       return addMessageToStore(state, action.payload);
     case ADD_ONLINE_USER: {
       return addOnlineUserToStore(state, action.id);
+    }
+    case UPDATE_SEEN_BY_OTHER_USER:
+      return updateSeenByOtherUserInStore(state, action.payload);
+    case UPDATE_READ_BY_ME: {
+      return updateReadByMeInStore(state, action.payload);
     }
     case REMOVE_OFFLINE_USER: {
       return removeOfflineUserFromStore(state, action.id);
